@@ -1,0 +1,64 @@
+@page
+@model MineModel
+@{
+    ViewData["Title"] = "Mis reservas";
+}
+
+<h1 class="h3 mb-3">Mis reservas</h1>
+
+@if (Model.SuccessMessage is not null)
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+@if (Model.ActionErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ActionErrorMessage</div>
+}
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@if (Model.Reservations.Count == 0)
+{
+    <p class="text-muted">Todavia no tienes reservas. <a asp-page="/Index">Busca una habitacion</a>.</p>
+}
+else
+{
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Codigo</th>
+                <th>Habitacion</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th>Estado</th>
+                <th>Total</th>
+                <th>Penalizacion</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model.Reservations)
+            {
+                <tr>
+                    <td>@r.ConfirmationCode</td>
+                    <td>@r.RoomTypeName</td>
+                    <td>@r.CheckIn.ToString("dd/MM/yyyy")</td>
+                    <td>@r.CheckOut.ToString("dd/MM/yyyy")</td>
+                    <td><span class="badge bg-secondary">@r.Status</span></td>
+                    <td>$@r.TotalPrice.ToString("N2")</td>
+                    <td>@(r.PenaltyAmount is null ? "-" : $"${r.PenaltyAmount:N2}")</td>
+                    <td>
+                        @if (r.Status is "Pending" or "Confirmed")
+                        {
+                            <form method="post" asp-page-handler="Cancel" asp-route-id="@r.Id">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

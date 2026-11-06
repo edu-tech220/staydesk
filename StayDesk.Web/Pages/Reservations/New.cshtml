@@ -1,0 +1,35 @@
+@page
+@model NewModel
+@{
+    ViewData["Title"] = "Confirmar reserva";
+}
+
+<h1 class="h3 mb-3">Confirmar reserva</h1>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@if (Model.Room is not null)
+{
+    <dl class="row col-md-6">
+        <dt class="col-sm-4">Tipo de habitacion</dt>
+        <dd class="col-sm-8">@Model.Room.Name</dd>
+        <dt class="col-sm-4">Entrada</dt>
+        <dd class="col-sm-8">@Model.CheckIn.ToString("dd/MM/yyyy")</dd>
+        <dt class="col-sm-4">Salida</dt>
+        <dd class="col-sm-8">@Model.CheckOut.ToString("dd/MM/yyyy")</dd>
+        <dt class="col-sm-4">Noches</dt>
+        <dd class="col-sm-8">@Model.Room.Nights</dd>
+        <dt class="col-sm-4">Huespedes</dt>
+        <dd class="col-sm-8">@Model.Guests</dd>
+        <dt class="col-sm-4">Precio total</dt>
+        <dd class="col-sm-8">$@Model.Room.TotalPrice.ToString("N2") MXN</dd>
+    </dl>
+
+    <form method="post">
+        <button type="submit" class="btn btn-success">Confirmar reserva</button>
+        <a asp-page="/Index" class="btn btn-link">Cancelar</a>
+    </form>
+}

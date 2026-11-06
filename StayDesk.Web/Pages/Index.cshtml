@@ -1,0 +1,80 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Buscar habitaciones";
+}
+
+<div class="mb-4">
+    <h1 class="display-6">StayDesk</h1>
+    <p class="text-muted">Busca disponibilidad por fechas y reserva en el acto.</p>
+</div>
+
+<form method="get" class="row g-3 align-items-end mb-4">
+    <div class="col-md-3">
+        <label asp-for="CheckIn" class="form-label">Entrada</label>
+        <input asp-for="CheckIn" type="date" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label asp-for="CheckOut" class="form-label">Salida</label>
+        <input asp-for="CheckOut" type="date" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Guests" class="form-label">Huespedes</label>
+        <input asp-for="Guests" type="number" min="1" max="20" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Buscar</button>
+    </div>
+</form>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@if (Model.Searched)
+{
+    if (Model.Results.Count == 0 && Model.ErrorMessage is null)
+    {
+        <div class="alert alert-warning">No hay habitaciones disponibles para esas fechas y numero de huespedes.</div>
+    }
+    else
+    {
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Tipo de habitacion</th>
+                    <th>Descripcion</th>
+                    <th>Capacidad</th>
+                    <th>Disponibles</th>
+                    <th>Noches</th>
+                    <th>Precio total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var room in Model.Results)
+                {
+                    <tr>
+                        <td>@room.Name</td>
+                        <td>@room.Description</td>
+                        <td>@room.Capacity personas</td>
+                        <td>@room.RoomsAvailable</td>
+                        <td>@room.Nights</td>
+                        <td>$@room.TotalPrice.ToString("N2") MXN</td>
+                        <td>
+                            <a class="btn btn-sm btn-success"
+                               asp-page="/Reservations/New"
+                               asp-route-roomTypeId="@room.RoomTypeId"
+                               asp-route-checkIn="@Model.CheckIn!.Value.ToString("yyyy-MM-dd")"
+                               asp-route-checkOut="@Model.CheckOut!.Value.ToString("yyyy-MM-dd")"
+                               asp-route-guests="@Model.Guests">
+                                Reservar
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

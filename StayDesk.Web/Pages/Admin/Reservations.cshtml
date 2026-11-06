@@ -1,0 +1,87 @@
+@page
+@model ReservationsModel
+@{
+    ViewData["Title"] = "Recepcion - Reservas";
+}
+
+<h1 class="h3 mb-3">Panel de recepcion</h1>
+
+<form method="get" class="row g-2 mb-3 align-items-end">
+    <div class="col-md-3">
+        <label class="form-label">Filtrar por estado</label>
+        <select name="status" class="form-select" onchange="this.form.submit()">
+            <option value="">Todos</option>
+            @foreach (var s in new[] { "Pending", "Confirmed", "CheckedIn", "CheckedOut", "Cancelled", "NoShow" })
+            {
+                <option value="@s" selected="@(Model.Status == s)">@s</option>
+            }
+        </select>
+    </div>
+</form>
+
+@if (Model.ActionErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ActionErrorMessage</div>
+}
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<table class="table table-sm align-middle">
+    <thead>
+        <tr>
+            <th>Codigo</th>
+            <th>Huesped</th>
+            <th>Habitacion</th>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Estado</th>
+            <th>Total</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model.Reservations)
+        {
+            <tr>
+                <td>@r.ConfirmationCode</td>
+                <td>@r.GuestName</td>
+                <td>@r.RoomTypeName</td>
+                <td>@r.CheckIn.ToString("dd/MM/yyyy")</td>
+                <td>@r.CheckOut.ToString("dd/MM/yyyy")</td>
+                <td><span class="badge bg-secondary">@r.Status</span></td>
+                <td>$@r.TotalPrice.ToString("N2")</td>
+                <td class="d-flex gap-1 flex-wrap">
+                    @if (r.Status == "Pending")
+                    {
+                        <form method="post" asp-page-handler="Confirm" asp-route-id="@r.Id" asp-route-status="@Model.Status">
+                            <button type="submit" class="btn btn-sm btn-primary">Confirmar</button>
+                        </form>
+                        <form method="post" asp-page-handler="Cancel" asp-route-id="@r.Id" asp-route-status="@Model.Status">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+                        </form>
+                    }
+                    @if (r.Status == "Confirmed")
+                    {
+                        <form method="post" asp-page-handler="CheckIn" asp-route-id="@r.Id" asp-route-status="@Model.Status">
+                            <button type="submit" class="btn btn-sm btn-success">Check-in</button>
+                        </form>
+                        <form method="post" asp-page-handler="Cancel" asp-route-id="@r.Id" asp-route-status="@Model.Status">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+                        </form>
+                        <form method="post" asp-page-handler="NoShow" asp-route-id="@r.Id" asp-route-status="@Model.Status">
+                            <button type="submit" class="btn btn-sm btn-outline-warning">No-show</button>
+                        </form>
+                    }
+                    @if (r.Status == "CheckedIn")
+                    {
+                        <form method="post" asp-page-handler="CheckOut" asp-route-id="@r.Id" asp-route-status="@Model.Status">
+                            <button type="submit" class="btn btn-sm btn-secondary">Check-out</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
